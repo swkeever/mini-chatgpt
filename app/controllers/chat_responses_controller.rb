@@ -6,6 +6,7 @@ class ChatResponsesController < ApplicationController
     response.headers['Last-Modified'] = Time.now.httpdate
     sse                               = SSE.new(response.stream, event: "message")
     client                            = OpenAI::Client.new(access_token: ENV["OPENAI_ACCESS_TOKEN"])
+
     begin
       client.chat(
         parameters: {
@@ -17,14 +18,12 @@ class ChatResponsesController < ApplicationController
             if content.nil?
               return
             end
-            print content
             sse.write({
                         message: content,
                       })
           end
         }
       )
-
     ensure
       sse.close
     end
